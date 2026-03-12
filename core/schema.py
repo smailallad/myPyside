@@ -21,9 +21,9 @@ def create_tables():
             categorie_id INTEGER NOT NULL,
             prix_achat DECIMAL(10,2) NOT NULL DEFAULT 0,
             prix_vente DECIMAL(10,2) NOT NULL DEFAULT 0,
-            stock INTEGER DEFAULT 0 NOT NULL,
-            seuil_alerte INTEGER DEFAULT 5 NOT NULL,
-            actif BOOLEAN DEFAULT TRUE NOT NULL,
+            stock INTEGER  NOT NULL DEFAULT 0,
+            seuil_alerte INTEGER NOT NULL DEFAULT 5 ,
+            actif BOOLEAN NOT NULL DEFAULT TRUE,
             photo_path VARCHAR(50),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (categorie_id) REFERENCES categories(id)

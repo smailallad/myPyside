@@ -290,10 +290,10 @@ QDialog QLineEdit {
 QDialog QLineEdit:focus {
     border: 1px solid #2962ff;
 }
-
+/* 
 QDialog QPushButton {
     min-width: 90px;
-}
+} */
 
 QPushButton[type="dialog-ok"] {
     background-color: #2e7d32;

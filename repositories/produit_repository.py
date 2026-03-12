@@ -12,10 +12,12 @@ class ProduitRepository:
             # values = list(produit.values())
             fields = []
             values = []
-
+            
             for k, v in produit.items():
                 if k == "reference" and isinstance(v, str):
                     v = v.upper()
+                if k == "photo_path":
+                    continue  # Ne pas inclure le champ photo_path dans l'insertion initiale
                 fields.append(k)
                 values.append(v)
 
@@ -151,6 +153,8 @@ class ProduitRepository:
             for k, v in produit.items():
                 if k == "reference" and isinstance(v, str):
                     v = v.upper()
+                if k == "photo_path":
+                    continue
                 fields.append(k+"=?")
                 values.append(v)
 

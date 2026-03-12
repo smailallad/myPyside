@@ -5,8 +5,9 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHBoxLayout
 )
 from PySide6.QtWidgets import QHeaderView
-from PySide6.QtCore import Qt
 import qtawesome as qta
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 class ProduitView(QWidget):
 
@@ -15,7 +16,6 @@ class ProduitView(QWidget):
 
         self.layout = QHBoxLayout(self)
         
-
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Rechercher par ID ou référence ou désignation...")
 
@@ -51,11 +51,24 @@ class ProduitView(QWidget):
         self.btn_delete.setProperty("type", "danger")
         
         btn_layout = QVBoxLayout()
-        btn_layout.addWidget(self.btn_add)
         # btn_layout.addWidget(self.btn_refresh)
+       
+        # widget_photo = QWidget()
+        # widget_photo.setFixedWidth(200)
+
+        # btn_layout.addWidget(widget_photo)
+        
+        self.photo_preview = QLabel("Aucune photo.")
+        self.photo_preview.setAlignment(Qt.AlignCenter)
+        self.photo_preview.setFixedSize(200,200)
+        
+        btn_layout.addWidget(self.photo_preview)
+
+        btn_layout.addStretch()
+
+        btn_layout.addWidget(self.btn_add)
         btn_layout.addWidget(self.btn_edit)
         btn_layout.addWidget(self.btn_delete)
-        btn_layout.addStretch()
 
         container_layout = QVBoxLayout()
         container_layout.addLayout(recherche_layout)
@@ -90,3 +103,5 @@ class ProduitView(QWidget):
                 self.table.setItem(row, col, cell)
             
                 # self.table.setItem(row, col, QTableWidgetItem(str(produit)))
+
+    
