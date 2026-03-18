@@ -5,11 +5,12 @@ from PySide6.QtWidgets import QHeaderView, QMessageBox, QTableWidgetItem
 from PySide6.QtCore import QTimer, Slot
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+from PIL import Image
 
 import os
 # import shutil
-from PIL import Image
 import core.utils as utils
+import core.config as config
 from views.produit.produit_detail_dialog_view import ProduitDetailDialogView
 
 class ProduitController():
@@ -32,8 +33,8 @@ class ProduitController():
         # self.search_value="" # stocker le terme de recherche actuel
         self.pixmap_cache = {} # cache mémoire
 
-        self.produit_service = container.resolve("produit_service")
-        self.categorie_service = container.resolve("categorie_service")
+        self.produit_service = container.resolve(config.Services.PRODUIT)
+        self.categorie_service = container.resolve(config.Services.CATEGORIE)
 
         self.categories = self.categorie_service.liste_tout_categories()
         self.load_categories()

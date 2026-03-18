@@ -14,7 +14,7 @@ class ProduitView(QWidget):
 
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(10)
-
+        
         # ===== CONTENEUR HEADER =====
         header_container = QWidget()
         header_container.setProperty("class","bordered")

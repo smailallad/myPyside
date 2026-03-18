@@ -1,10 +1,11 @@
+import core.config as config
 class CategorieController:
     def __init__(self,view,container):
         super().__init__()
         self.view = view
 
-        self.produit_service = container.resolve("produit_service")
-        self.categorie_service = container.resolve("categorie_service")
+        self.produit_service = container.resolve(config.Services.PRODUIT)
+        self.categorie_service = container.resolve(config.Services.CATEGORIE)
 
         # Connecter les signaux
         self._connect_signals()

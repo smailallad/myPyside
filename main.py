@@ -1,4 +1,5 @@
 import sys
+import core.config as config
 
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
@@ -79,27 +80,27 @@ def main():
     container = Container()
 
     # Ajout des services et repositories dans le container
-    container.register("dashboard_repository", DashboardRepository())
+    container.register(config.Repositories.DASHBOARD, DashboardRepository())
     container.register(
-        "dashboard_service",
+        config.Services.DASHBOARD,
         lambda: DashboardService(
-            container.resolve("dashboard_repository")
+            container.resolve(config.Repositories.DASHBOARD)
         )
     )
 
-    container.register("categorie_repository", CategorieRepository())
+    container.register(config.Repositories.CATEGORIE, CategorieRepository())
     container.register(
-        "categorie_service",
+        config.Services.CATEGORIE,
         lambda: CategorieService(
-            container.resolve("categorie_repository")
+            container.resolve(config.Repositories.CATEGORIE)
         )
     )
 
-    container.register("produit_repository", ProduitRepository())
+    container.register(config.Repositories.PRODUIT, ProduitRepository())
     container.register(
-        "produit_service",
+        config.Services.PRODUIT,
         lambda: ProduitService(
-            container.resolve("produit_repository")
+            container.resolve(config.Repositories.PRODUIT)
         )
     )
 
@@ -111,14 +112,14 @@ def main():
     router = Router(window.stack, container, auth)
 
     router.register(
-        "dashboard",
+        config.Routes.DASHBOARD,
         DashboardView,
         DashboardController,
         roles=["ADMIN", "USER"]
     )
 
     router.register(
-        "produits",
+        config.Routes.PRODUIT,
         ProduitView,
         ProduitController,
         roles=["ADMIN"]
@@ -126,19 +127,19 @@ def main():
 
     # Signaux de navigation
     window.btn_dashboard.clicked.connect(
-        lambda: router.navigate("dashboard")
+        lambda: router.navigate(config.Routes.DASHBOARD)
     )
 
     window.btn_produits.clicked.connect(
-        lambda: router.navigate("produits")
+        lambda: router.navigate(config.Routes.PRODUIT)
     )
 
     window.btn_ventes.clicked.connect(
-        lambda: router.navigate("ventes")
+        lambda: router.navigate(config.Routes.DASHBOARD)
     )
 
     # Par défaut, on affiche le dashboard
-    router.navigate("dashboard")
+    router.navigate(config.Routes.DASHBOARD)
 
     window.show()
     sys.exit(app.exec())
