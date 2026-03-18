@@ -38,7 +38,7 @@ class ProduitView(QWidget):
 
         self.combo_stock=QComboBox()
         self.combo_actif=QComboBox()
-        self.combo_categorie = QComboBox()
+        self.combo_categorie = QComboBox() 
         
         self.combo_stock.setItemDelegate(QStyledItemDelegate())
         self.combo_actif.setItemDelegate(QStyledItemDelegate())

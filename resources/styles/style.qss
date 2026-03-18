@@ -296,3 +296,7 @@ QCheckBox::indicator:disabled {
 .fields-green {
     background-color:#2ecc71;
 }
+
+.align_right {
+    qproperty-alignment: 'AlignVCenter | AlignRight';
+}

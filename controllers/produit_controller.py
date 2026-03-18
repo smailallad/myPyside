@@ -15,7 +15,7 @@ from views.produit.produit_detail_dialog_view import ProduitDetailDialogView
 
 class ProduitController():
 
-    def __init__(self, view,container):
+    def __init__(self, view,container,router):
         super().__init__()   # obligatoire pour QObject
         self.view = view
         self.model = ProduitTableModel([])
@@ -80,6 +80,28 @@ class ProduitController():
         self.view.btn_prev.clicked.connect(self.prev_page)
         self.view.btn_next.clicked.connect(self.next_page)
         self.view.btn_last.clicked.connect(self.last_page)
+
+    def apply_filter(self, status=None):
+        self.view.combo_categorie.blockSignals(True)
+        self.view.combo_stock.blockSignals(True)
+        self.view.combo_actif.blockSignals(True)
+
+        self.view.combo_categorie.setCurrentIndex(0)
+        self.view.combo_actif.setCurrentIndex(0)
+        self.view.combo_stock.setCurrentIndex(0)
+        match status:
+            case "actif":
+                self.view.combo_actif.setCurrentIndex(1)
+            case "non_actif":
+                self.view.combo_actif.setCurrentIndex(2)
+            case "alerte":
+                self.view.combo_actif.setCurrentIndex(1)
+                self.view.combo_stock.setCurrentIndex(1)
+        self.load_produits(True)
+
+        self.view.combo_categorie.blockSignals(False)
+        self.view.combo_stock.blockSignals(False)
+        self.view.combo_actif.blockSignals(False)
 
     def on_sort_changed(self, column, order):
 
@@ -216,10 +238,6 @@ class ProduitController():
         row = index.row()
         produit = self.model.produits[row]
         return produit.id
-
-    # def refresh(self):
-    #     self.page=1
-    #     self.load_produits()
 
     def load_produits(self,reset_page=False):
         if reset_page:

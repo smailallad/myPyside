@@ -16,7 +16,7 @@ class Router:
             "roles": roles or []
         }
 
-    def navigate(self, name):
+    def navigate(self, name, **kwargs):
         if name not in self.routes:
             raise ValueError(f"Route '{name}' not registered")
 
@@ -32,13 +32,20 @@ class Router:
         if name not in self.instances:
             # print(f"Instanciation de la route '{name}'")
             view = route["view"]()
-            controller = route["controller"](view, self.container)
+            controller = route["controller"](view, self.container,self)
             # self.instances[name] = view
             self.instances[name] = {
                 "view": view,
                 "controller": controller
             }
             self.stacked_widget.addWidget(view)
+        
+        # RÉCUPÉRATION DU CONTRÔLEUR
+        target_controller = self.instances[name]["controller"]
+        
+        # SI ON A DES FILTRES ET QUE LE CONTRÔLEUR A UNE MÉTHODE 'apply_filter'
+        if kwargs and hasattr(target_controller, 'apply_filter'):
+            target_controller.apply_filter(**kwargs)
 
         # print(f"Navigation vers '{name}'")
         self.stacked_widget.setCurrentWidget(self.instances[name]["view"])

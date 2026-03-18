@@ -1,10 +1,9 @@
 import core.config as config
-from core.router import Router
 
 class DashboardController:
-    def __init__(self, view, container):
+    def __init__(self, view, container,router):
         self.view = view
-        self.router =Router
+        self.router =router
         self.dashboard_service = container.resolve(config.Services.DASHBOARD)
         self.produit_service = container.resolve(config.Services.PRODUIT)
 
@@ -27,5 +26,10 @@ class DashboardController:
         # print("Dashboard mis à jour avec les dernières données !")
 
     def handle_card_click(self,key):
-        print(key,config.Routes.PRODUIT)
-        # Router.navigate(config.Routes.PRODUIT)
+        # match key:
+        #     case "produit":
+        #         print(key)
+        #     case "actif":
+        #         print(key)
+
+        self.router.navigate(config.Routes.PRODUIT,status=key)
