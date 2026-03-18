@@ -1,5 +1,6 @@
-from pathlib import Path
 import sys
+
+from pathlib import Path
 from PySide6.QtWidgets import QApplication
 
 from core.router import Router
@@ -21,24 +22,53 @@ from controllers.produit_controller import ProduitController
 
 from views.main_window import MainWindow
 from views.dashboard_view import DashboardView
-from views.produit_view import ProduitView
+from views.produit.produit_view import ProduitView
+
+def set_theme(app, theme):
+    """
+    Applique le thème QSS à l'application.
+    theme: "dark" ou "light"
+    """
+    style_dir = Path(__file__).parent / "resources" / "styles"
+    theme_file = "dark.qss" if theme == "dark" else "light.qss"
+    structure_file = "style.qss"
+
+    try:
+        # Lecture du fichier de couleurs (Dark ou Light)
+        with open(style_dir / theme_file, "r", encoding="utf-8") as f:
+            theme_content = f.read()
+        
+        # Lecture du fichier de structure (Dimensions, Radius, etc.)
+        with open(style_dir / structure_file, "r", encoding="utf-8") as f:
+            structure_content = f.read()
+
+        # Application globale (Fusion des deux)
+        app.setStyleSheet(theme_content + "\n" + structure_content)
+        
+    except FileNotFoundError as e:
+        print(f"⚠️ Erreur : Fichier QSS introuvable -> {e}")
 
 def main():
     # création automatique des tables
     create_tables()
-    
     app = QApplication(sys.argv)
 
-    style_path = Path(__file__).parent / "resources" / "styles" / "style.qss"
+    # Initialisation de la fenêtre
+    window = MainWindow()
 
-    with open(style_path, "r") as f:
-        app.setStyleSheet(f.read())
+    # --- La fonction de rappel (callback) ---
+    def change_theme(is_checked):
+        # On détermine le nom du thème
+        mode = "dark" if is_checked else "light"
+        # On appelle la fonction globale
+        set_theme(app, mode)
+        # print(f"🎨 Thème changé en : {mode}")
 
-    # with open("myStyle.qss", "r") as f:
-    #     app.setStyleSheet(f.read())
+    # Appliquer le thème par défaut au démarrage
+    set_theme(app, "light")
 
-    # Set the 'Fusion' system style
-    # app.setStyle('Oxygen')
+    # Connecter le signal du CheckBox / Switch
+    window.check_theme.toggled.connect(change_theme)
 
     # 🔐 Auth
     auth = AuthManager()
@@ -75,6 +105,7 @@ def main():
 
     # 🖥 Main Window
     window = MainWindow()
+    window.check_theme.toggled.connect(change_theme)
 
     # 🚀 Router
     router = Router(window.stack, container, auth)

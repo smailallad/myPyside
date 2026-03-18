@@ -1,0 +1,105 @@
+/* COLORS - LIGHT */
+QMainWindow, 
+QListWidget, 
+QDialog,
+QWidget,
+QHeaderView::section { 
+    background-color: #fbfbfb; 
+    /* color: #202020;  */
+    color:#3e3e3e;
+}
+
+/* ================================================= */
+/* BUTTON DEFAULT */
+/* ================================================= */
+
+QPushButton[type="default"] { 
+    background-color: #e0e0e0; 
+    color: #333333; 
+    border: 1px solid #cccccc; 
+    border-radius: 5px;
+    }
+QPushButton[type="default"]:hover { 
+    background-color: #d5d5d5; 
+    }
+
+/* ================================================= */
+/* SIDEBAR */
+/* ================================================= */
+
+QFrame#sidebar { 
+    border-color: #dcdcdc; 
+}
+
+QFrame#sidebar,
+QFrame#sidebar QLabel,
+QFrame#sidebar QCheckBox {
+    background-color: #f8f8f9; 
+
+}
+
+QPushButton[type="btn-sidebar"] { 
+    color: #505050;
+ }
+
+QPushButton[type="btn-sidebar"]:hover { 
+    background-color: #f0f0f0; 
+}
+
+QPushButton[type="btn-sidebar"]:checked { 
+    background-color: #e0e0e0; 
+    color: #000; 
+}
+
+/* ================================================= */
+/* MESSAGE BOX */
+/* ================================================= */
+
+QMessageBox {
+    background-color: #fbfbfb; 
+}
+
+QMessageBox QLabel {
+    color: #222;
+    background-color: transparent;
+}
+
+QMessageBox QPushButton {
+    background-color: #2962ff;
+    color: white;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #1e4bd8;
+}
+
+/* CARDS */
+.card { 
+    background-color: #ffffff; 
+    border-color: #dcdcdc; 
+}
+
+.card[type="info"] { 
+    background-color: #e3f2fd; 
+    border-color: #2196f3; 
+}
+
+.card[type="warning"] { 
+    background-color: #fff8e1; 
+    border-color: #ffb300; 
+}
+
+.card[type="danger"] { 
+    background-color: #fdecea; 
+    border-color: #eb4432; 
+}
+
+.card:hover { 
+    background-color: #f9f9f9; 
+}
+
+.fields {
+    background-color: #e3e0e0
+}

@@ -8,15 +8,18 @@ class ProduitService:
     def add_produit(self, produit):
         return self.repository.add_produit(produit=produit)
 
-    def get_produits(self,search_value="",order_by="id",order="ASC",page=1,limit=100):
+    def get_produits(self,search_value="",categorie=None,actif=None,stock=None,order_by="id",order="ASC",page=1,limit=100):
+        
         try:
             page = max(1, int(page))
             limit = max(1, int(limit))
 
-            total_rows =self.repository.count_produits(search_value)
-            total_pages = math.ceil(total_rows / limit)
+            # total_rows =self.repository.count_produits(search_value) # ajouter categorie
             offset = (page - 1) * limit
-            produits = self.repository.get_produits(search_value=search_value,order_by=order_by,order=order,offset=offset,limit=limit)
+            total_rows, produits = self.repository.get_produits(search_value=search_value,categorie=categorie,actif=actif,stock=stock,order_by=order_by,order=order,offset=offset,limit=limit)
+            total_pages = math.ceil(total_rows / limit)
+            if total_pages<=0:
+                total_pages=1
 
             return {
                 "success": True,

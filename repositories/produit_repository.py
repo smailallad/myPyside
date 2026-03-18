@@ -53,7 +53,8 @@ class ProduitRepository:
             cursor.close()
             cnx.close()
 
-    def get_produits(self, search_value="",order_by="id",order="ASC",offset=0,limit=100):
+    def get_produits(self, search_value="",categorie=None,actif=None,stock=None,order_by="id",order="ASC",offset=0,limit=100):
+        
         if order_by not in ["id", "reference", "designation", "categorie", "prix_achat", "prix_vente", "stock", "seuil_alerte", "actif",]:
             order_by = "categories.id"
 
@@ -71,7 +72,7 @@ class ProduitRepository:
         #          FROM produits
         #          INNER JOIN categories ON produits.categorie_id=categories.id
         #     """
-        sql="""
+        _sql="""
                 SELECT
                 produits.id,
                 produits.reference,
@@ -85,50 +86,98 @@ class ProduitRepository:
                 categories.nom as categorie_nom,
                 categories.id as categorie_id,
                 GROUP_CONCAT(vehicules.nom || ' annee ' || vehicules.annee || ' ')  AS adapter
+            """
+        _from ="""
             FROM produits
             LEFT JOIN categories ON produits.categorie_id = categories.id
             LEFT JOIN produit_vehicules  ON produits.id = produit_vehicules.produit_id
             LEFT JOIN vehicules ON produit_vehicules.vehicule_id = vehicules.id
             """
         params=[]
+        _where=""
 
         if search_value:
-            sql+=" WHERE produits.id = ? OR produits.reference LIKE ? OR produits.designation LIKE ? OR categories.nom LIKE ? OR vehicules.nom LIKE ? "
+            # sql+=" WHERE produits.id = ? OR produits.reference LIKE ? OR produits.designation LIKE ? OR categories.nom LIKE ? OR vehicules.nom LIKE ? "
+            _where=" WHERE produits.id = ? OR produits.reference LIKE ? OR produits.designation LIKE ? OR vehicules.nom LIKE ? "
             params.append(search_value)
             params.append(f"%{search_value}%")
             params.append(f"%{search_value}%")
             params.append(f"%{search_value}%")
-            params.append(f"%{search_value}%")
+            # params.append(f"%{search_value}%")
+        
+        if categorie:
+            if _where=="":
+                _where+= " WHERE "    
+            else:    
+                _where+= " AND "
+            _where+= " categories.id = ? "
+            params.append(categorie)
+        
+        if actif!=None:
+            if _where=="":
+                _where+= " WHERE "
+            else:    
+                _where+= " AND "
+            _where+= " produits.actif = ? "
+            params.append(actif)
 
-        sql += f" GROUP BY produits.id, produits.reference, produits.designation, produits.prix_achat, produits.prix_vente, produits.stock, produits.seuil_alerte, produits.actif,produits.photo_path"
-        sql += f" ORDER BY {order_by} {order} LIMIT ? OFFSET ?"
-        params.extend([limit,offset])
-        cursor.execute(sql, params)
+        if stock!=None:
+            if _where=="":
+                _where+= " WHERE "
+            else:    
+                _where+= " AND "
+            _where+= " produits.stock<=produits.seuil_alerte "
+            
+        _groupe_by = f" GROUP BY produits.id, produits.reference, produits.designation, produits.prix_achat, produits.prix_vente, produits.stock, produits.seuil_alerte, produits.actif,produits.photo_path "
+        _order_by = f" ORDER BY {order_by} {order} "
+        _limit = f" LIMIT {limit} OFFSET {offset} "
+    
+        # sql += f" GROUP BY produits.id, produits.reference, produits.designation, produits.prix_achat, produits.prix_vente, produits.stock, produits.seuil_alerte, produits.actif,produits.photo_path"
+        # sql += f" ORDER BY {order_by} {order} LIMIT ? OFFSET ?"
+        # params.extend([limit,offset])
+        _req=_sql + _from + _where + _groupe_by + _order_by + _limit
+        
+        cursor.execute(_req, params)
         rows = cursor.fetchall()
-        produits = [dict(row) for row in rows]
-        # produits = [Produit(**p) for p in rows]
-        cursor.close()
-        cnx.close()
-        return produits
+        # produits = [dict(row) for row in rows]
+        produits = [Produit(**p) for p in rows]
 
-    def count_produits(self,search_value=""):
-        cnx, cursor = get_connection()
-
-        sql = "SELECT COUNT(*) FROM produits INNER JOIN categories ON produits.categorie_id=categories.id"
-        params = []
-
-        if search_value:
-            sql += " WHERE produits.id= ? OR produits.reference LIKE ? OR produits.designation LIKE ?"
-            params.append(search_value)
-            params.append(f"%{search_value}%")
-            params.append(f"%{search_value}%")
-
-        cursor.execute(sql, params)
-        total = cursor.fetchone()[0]
+        _req_count="SELECT COUNT (*) " + _from + _where
+        cursor.execute(_req_count, params)
+        total_rows = cursor.fetchone()[0]
 
         cursor.close()
         cnx.close()
-        return total
+        
+        return total_rows, produits
+
+    # def count_produits(self,search_value="",categorie=None):
+    #     cnx, cursor = get_connection()
+
+    #     sql = "SELECT COUNT(*) FROM produits INNER JOIN categories ON produits.categorie_id=categories.id"
+    #     params = []
+
+    #     where=None
+    #     if search_value:
+    #         where= " WHERE produits.id= ? OR produits.reference LIKE ? OR produits.designation LIKE ?"
+    #         params.append(search_value)
+    #         params.append(f"%{search_value}%")
+    #         params.append(f"%{search_value}%")
+
+    #     if categorie:
+    #         if where:
+    #             where+=" AND categirie.id = ?"
+    #             params.append(categorie)
+    #         else:
+    #             where= " WHERE categorie.id= ?"
+    #             params.append(categorie)
+
+    #     cursor.execute(sql, params)
+    #     total = cursor.fetchone()[0]
+
+    #     cursor.close()
+    #     cnx.close()
+    #     return total
 
     def get_produit_by_id(self,produit_id):
         cnx, cursor = get_connection()

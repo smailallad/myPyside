@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QFrame, QLabel, QMainWindow, QMessageBox, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QCheckBox, QComboBox, QFrame, QLabel, QMainWindow, QMessageBox, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QStackedWidget
 from PySide6.QtCore import Qt
 import qtawesome as qta
 
@@ -8,7 +8,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Gestion de Stock - PySide6")
         # self.resize(1000, 600)
-        self.setMinimumSize(900, 600)
+        self.setMinimumSize(1200, 600)
         # self.showMaximized()
         # self.showFullScreen()
 
@@ -27,20 +27,22 @@ class MainWindow(QMainWindow):
         
         sidebar_layout = QVBoxLayout(sidebar)
 
+        self.check_theme  = QCheckBox()
+        
         self.btn_dashboard = QPushButton("Dashboard")
         self.btn_dashboard.setProperty("type","btn-sidebar")
         self.btn_dashboard.setAttribute(Qt.WA_StyledBackground, True)
-        self.btn_dashboard.setIcon(qta.icon("fa5s.home", color='white', color_active='white', color_disabled='gray'))
+        self.btn_dashboard.setIcon(qta.icon("fa5s.home", color='blue', color_active='white', color_disabled='gray'))
 
         self.btn_produits = QPushButton("Produits")
         self.btn_produits.setProperty("type","btn-sidebar")
         self.btn_produits.setAttribute(Qt.WA_StyledBackground, True)
-        self.btn_produits.setIcon(qta.icon("fa5s.box", color='white',  color_active='white', color_disabled='gray'))
+        self.btn_produits.setIcon(qta.icon("fa5s.box", color='blue',  color_active='white', color_disabled='gray'))
 
         self.btn_ventes = QPushButton("Ventes")
         self.btn_ventes.setProperty("type","btn-sidebar")
         self.btn_ventes.setAttribute(Qt.WA_StyledBackground, True)
-        self.btn_ventes.setIcon(qta.icon("fa5s.shopping-cart", color='white',  color_active='white', color_disabled='gray'))
+        self.btn_ventes.setIcon(qta.icon("fa5s.shopping-cart", color='blue',  color_active='white', color_disabled='gray'))
 
         self.btn_quitter = QPushButton("Quitter")
         self.btn_quitter.setProperty("type", "btn-sidebar-danger")
@@ -49,6 +51,15 @@ class MainWindow(QMainWindow):
         self.btn_quitter.clicked.connect(self.close)
         
         # sidebar_layout.addSpacing(20)
+        layout_check_theme=QHBoxLayout()
+        lbl_check_theme=QLabel("Theme dark: ")
+        lbl_check_theme.setStyleSheet("font-weight:bold; color:#aaa;")
+        
+        layout_check_theme.addWidget(lbl_check_theme)
+        layout_check_theme.addStretch()
+        layout_check_theme.addWidget(self.check_theme)
+        # sidebar_layout.addWidget(self.check_theme)
+        sidebar_layout.addLayout(layout_check_theme)
         sidebar_layout.addWidget(self.btn_dashboard)
         sidebar_layout.addWidget(self.btn_produits)
         sidebar_layout.addWidget(self.btn_ventes)
