@@ -50,7 +50,6 @@ QPushButton[type="btn-sidebar"]:checked {
     color: white; 
 }
 
-
 /* ================================================= */
 /* MESSAGE BOX */
 /* ================================================= */
@@ -94,6 +93,11 @@ QMessageBox QPushButton:hover {
 .card[type="danger"]{
     background-color: #443838; 
     border-color: #e81123; 
+}
+
+.card[type="success"]{
+    background-color: #465044; 
+    border-color: #b4ff3c; 
 }
 
 .card:hover { 

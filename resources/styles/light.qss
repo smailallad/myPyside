@@ -96,6 +96,12 @@ QMessageBox QPushButton:hover {
     border-color: #eb4432; 
 }
 
+
+.card[type="success"] { 
+    background-color: #abf182; 
+    border-color: #48eb32; 
+}
+
 .card:hover { 
     background-color: #f9f9f9; 
 }

@@ -37,6 +37,9 @@ class ProduitService:
             }
         #   return get_produits(search_value)
 
+    def get_count_produits(self):
+        return self.repository.get_count_produits()
+    
     def get_produit_by_id(self,id):
         return self.repository.get_produit_by_id(id)
 

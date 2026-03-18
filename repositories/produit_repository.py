@@ -151,33 +151,24 @@ class ProduitRepository:
         
         return total_rows, produits
 
-    # def count_produits(self,search_value="",categorie=None):
-    #     cnx, cursor = get_connection()
+    def get_count_produits(self):
+        cnx, cursor = get_connection()
 
-    #     sql = "SELECT COUNT(*) FROM produits INNER JOIN categories ON produits.categorie_id=categories.id"
-    #     params = []
+        cursor.execute("SELECT COUNT(*) FROM produits")
+        total_produits = cursor.fetchone()[0]
 
-    #     where=None
-    #     if search_value:
-    #         where= " WHERE produits.id= ? OR produits.reference LIKE ? OR produits.designation LIKE ?"
-    #         params.append(search_value)
-    #         params.append(f"%{search_value}%")
-    #         params.append(f"%{search_value}%")
+        cursor.execute("SELECT COUNT(*) FROM produits WHERE actif = 1")
+        total_produits_actif = cursor.fetchone()[0]
 
-    #     if categorie:
-    #         if where:
-    #             where+=" AND categirie.id = ?"
-    #             params.append(categorie)
-    #         else:
-    #             where= " WHERE categorie.id= ?"
-    #             params.append(categorie)
+        cursor.execute("SELECT COUNT(*) FROM produits WHERE stock <= seuil_alerte AND actif=1")
+        total_produits_alerte = cursor.fetchone()[0]
 
-    #     cursor.execute(sql, params)
-    #     total = cursor.fetchone()[0]
+        cursor.close()
+        cnx.close()
 
-    #     cursor.close()
-    #     cnx.close()
-    #     return total
+        total_produits_non_actif = total_produits - total_produits_actif
+
+        return total_produits,total_produits_actif, total_produits_non_actif,total_produits_alerte
 
     def get_produit_by_id(self,produit_id):
         cnx, cursor = get_connection()
