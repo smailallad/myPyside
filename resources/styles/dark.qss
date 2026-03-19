@@ -46,7 +46,7 @@ QPushButton[type="btn-sidebar"]:hover {
 }
 
 QPushButton[type="btn-sidebar"]:checked { 
-    background-color: #343454; 
+    /* background-color: #343454;  */
     color: white; 
 }
 

@@ -1,12 +1,11 @@
 
 import re
 from PySide6.QtCore import Qt, Signal
-# from PySide6.QtWidgets import (QDialog,QVBoxLayout,QFormLayout,QLineEdit)
+
 from PySide6.QtWidgets import (
     QCheckBox, QDialog, QFileDialog, QFormLayout, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QLineEdit,
-    QComboBox, QSpinBox, QDoubleSpinBox,
-    QMessageBox, QWidget
+    QComboBox, QSpinBox, QWidget
 )
 import qtawesome as qta
 from PySide6.QtGui import QPixmap
@@ -134,3 +133,18 @@ class ProduitAddView(QDialog):
         self.photo_preview.clear()
         self.photo_preview.setText("Aucune photo sélectionnée")
         self.photo_path = None 
+    
+    # Dans views/produit/produit_add_view.py
+
+    def highlight_error(self, field_name):
+        # On remet tous les styles par défaut d'abord
+        self.reference_produit.setStyleSheet("")
+        self.designation_produit.setStyleSheet("")
+        
+        # On colore le champ concerné
+        if field_name == "reference":
+            self.reference_produit.setStyleSheet("border: 1px solid red;")
+            self.reference_produit.setFocus()
+        elif field_name == "designation":
+            self.designation_produit.setStyleSheet("border: 1px solid red;")
+            self.designation_produit.setFocus()

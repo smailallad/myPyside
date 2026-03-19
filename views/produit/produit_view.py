@@ -44,31 +44,42 @@ class ProduitView(QWidget):
         self.combo_actif.setItemDelegate(QStyledItemDelegate())
         self.combo_categorie.setItemDelegate(QStyledItemDelegate())
 
+        self.btn_reset_filters = QPushButton()
+        self.btn_reset_filters.setProperty("type","primary")
+        self.btn_reset_filters.setToolTip("Réinitialiser tous les filtres")
+        self.btn_reset_filters.setIcon(qta.icon("fa5s.undo", color="white"))
+        self.btn_reset_filters.setFixedWidth(40) # On le garde petit et discret
+
         filter_layout.addWidget(self.search_input)
         filter_layout.addWidget(self.combo_stock)
         filter_layout.addWidget(self.combo_actif)
         filter_layout.addWidget(self.combo_categorie)
+        filter_layout.addWidget(self.btn_reset_filters)
 
         header_layout.addLayout(filter_layout)
 
         # ===== ACTIONS =====
         actions_layout = QHBoxLayout()
 
-        self.btn_add = QPushButton("Ajouter")
+        self.btn_add = QPushButton()
         self.btn_add.setIcon(qta.icon("fa5s.plus",color="white"))
         self.btn_add.setProperty("type","primary")
+        self.btn_add.setToolTip("Ajouter.")
 
-        self.btn_detail = QPushButton("Detail")
+        self.btn_detail = QPushButton()
         self.btn_detail.setIcon(qta.icon("fa5s.eye",color="white"))
         self.btn_detail.setProperty("type","success")
+        self.btn_detail.setToolTip("Detail")
 
-        self.btn_edit = QPushButton("Modifier")
+        self.btn_edit = QPushButton()
         self.btn_edit.setIcon(qta.icon("fa5s.edit",color="white"))
         self.btn_edit.setProperty("type","success")
+        self.btn_edit.setToolTip("Modifier")
 
-        self.btn_delete = QPushButton("Supprimer")
+        self.btn_delete = QPushButton()
         self.btn_delete.setIcon(qta.icon("fa5s.trash",color="white"))
         self.btn_delete.setProperty("type","danger")
+        self.btn_delete.setToolTip("Supprimer")
 
         # ===== Btn Navigations ========#
         pagination_layout = QHBoxLayout()
@@ -116,6 +127,9 @@ class ProduitView(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setCornerButtonEnabled(False) # Plus propre
+        self.table.setShowGrid(False) # Donne un look plus moderne si votre QSS gère les bordures de lignes
+        self.table.setFocusPolicy(Qt.NoFocus) # Évite le rectangle en pointillés orange/bleu sur les cellules
 
         # self.table.setAlternatingRowColors(True)
         self.table.setSortingEnabled(True)
@@ -177,17 +191,36 @@ class ProduitView(QWidget):
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
 
-    def show_context_menu(self,pos):
+    # def show_context_menu(self,pos):
+
+    #     menu = QMenu(self)
+
+    #     action_edit = menu.addAction("Modifier")
+    #     action_delete = menu.addAction("Supprimer")
+
+    #     action = menu.exec(self.table.viewport().mapToGlobal(pos))
+
+    #     if action == action_edit:
+    #         self.btn_edit.click()
+
+    #     if action == action_delete:
+    #         self.btn_delete.click()
+
+    def show_context_menu(self, pos):
+        index = self.table.indexAt(pos)
+        if not index.isValid():
+            return
 
         menu = QMenu(self)
-
-        action_edit = menu.addAction("Modifier")
-        action_delete = menu.addAction("Supprimer")
+        
+        # Ajout d'icônes pour la cohérence visuelle
+        action_detail = menu.addAction(qta.icon("fa5s.eye"), "Détails")
+        action_edit = menu.addAction(qta.icon("fa5s.edit"), "Modifier")
+        menu.addSeparator()
+        action_delete = menu.addAction(qta.icon("fa5s.trash", color="red"), "Supprimer")
 
         action = menu.exec(self.table.viewport().mapToGlobal(pos))
 
-        if action == action_edit:
-            self.btn_edit.click()
-
-        if action == action_delete:
-            self.btn_delete.click()
+        if action == action_detail: self.btn_detail.click()
+        elif action == action_edit: self.btn_edit.click()
+        elif action == action_delete: self.btn_delete.click()

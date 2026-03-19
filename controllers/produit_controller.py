@@ -75,6 +75,7 @@ class ProduitController():
         self.view.combo_stock.currentIndexChanged.connect(lambda:self.load_produits(reset_page=True))
         self.view.combo_actif.currentIndexChanged.connect(lambda:self.load_produits(reset_page=True))
         self.view.combo_categorie.currentIndexChanged.connect(lambda:self.load_produits(reset_page=True))
+        self.view.btn_reset_filters.clicked.connect(self.reset_filters)
 
         self.view.btn_first.clicked.connect(self.first_page)
         self.view.btn_prev.clicked.connect(self.prev_page)
@@ -118,31 +119,35 @@ class ProduitController():
 
         self.load_produits(reset_page=True)
 
-    def get_produit_data(self,dialog,action):
-        if action:
-            produit = {
-                "reference": dialog.reference_produit.text(),
-                "designation": dialog.designation_produit.text(),
-                "categorie_id": dialog.categorie_produit.currentData(),
-                "seuil_alerte": dialog.seuil_alerte_produit.value(),
-                "photo_path": dialog.photo_path
-            }
-        else:
-            produit = {
-                "reference": dialog.reference_produit.text(),
-                "designation": dialog.designation_produit.text(),
-                "categorie_id": dialog.categorie_produit.currentData(),
-                "seuil_alerte": dialog.seuil_alerte_produit.value(),
-                "actif": dialog.actif.isChecked(),
-                "photo_path": dialog.photo_path
-            }
-
+    def get_produit_data(self,dialog):
+        produit = {
+            "reference": dialog.reference_produit.text(),
+            "designation": dialog.designation_produit.text(),
+            "categorie_id": dialog.categorie_produit.currentData(),
+            "seuil_alerte": dialog.seuil_alerte_produit.value(),
+            "photo_path": dialog.photo_path
+        }
+        
+        # On ajoute 'actif' seulement si le widget existe dans le dialogue (cas edit)
+        if hasattr(dialog, 'actif'):
+            produit["actif"] = dialog.actif.isChecked()
+        
         return produit
     
     def on_save(self, dialog, produit):
+        # --- ÉTAPE DE VALIDATION ---
+        is_valid, field_name,error_message = self.validate_produit_data(produit)
+        
+        if not is_valid:
+            dialog.highlight_error(field_name)
+            QMessageBox.warning(dialog, "Données invalides", error_message)
+            return  # On sort de la fonction, le dialogue reste ouvert pour correction
+
+        # --- ÉTAPE D'INSERTION (si valide) ---
         produit_id = None
         result, message = self.produit_service.add_produit(produit)
         if not result:
+           
             QMessageBox.warning(dialog, "Erreur", message)
             return   # ❌ la fenêtre reste ouverte
         
@@ -161,6 +166,15 @@ class ProduitController():
         self.load_produits(reset_page=True)
 
     def on_update(self, dialog, produit_id, produit):
+        # --- ÉTAPE DE VALIDATION ---
+        is_valid, field_name,error_message = self.validate_produit_data(produit)
+        
+        if not is_valid:
+            dialog.highlight_error(field_name)
+            QMessageBox.warning(dialog, "Données invalides", error_message)
+            return  # On sort de la fonction, le dialogue reste ouvert pour correction
+
+        # --- ÉTAPE D'INSERTION (si valide) ---
         result, message = self.produit_service.update_produit(produit_id,produit)
         if not result:
             QMessageBox.warning(dialog, "Erreur", message)
@@ -177,15 +191,6 @@ class ProduitController():
         self.load_produits(reset_page=True)
 
     def upload_photo(self, produit_id: int, photo_path: str):
-        # try:
-        #     dest_folder = utils.Utils.dir_folder_photos_produits()
-        #     filename = f"produit_{str(produit_id).zfill(5)}{os.path.splitext(os.path.basename(photo_path))[1]}"
-        #     dest_path = os.path.join(dest_folder, filename)
-        #     shutil.copy(photo_path, dest_path)
-        #     self.produit_service.update_photo_produit(produit_id, dest_path)
-        # except Exception as e:
-        #     raise RuntimeError(f"La photo n'a pas pu être enregistrée: {e}")
-        #==
         try:
             dest_folder = utils.Utils.dir_folder_photos_produits()
             filename = f"produit_{str(produit_id).zfill(5)}.jpg"
@@ -288,26 +293,53 @@ class ProduitController():
         #             self.view.categorie_produit.setCurrentIndex(index)  
 
     def update_navigation(self):
-        if self.page<=1:
-            if self.total_pages<=1:
-                self.view.btn_first.setEnabled(False)
-                self.view.btn_prev.setEnabled(False)
-                self.view.btn_next.setEnabled(False)
-                self.view.btn_last.setEnabled(False)
-            else:
-                self.view.btn_first.setEnabled(False)
-                self.view.btn_prev.setEnabled(False)
-                self.view.btn_next.setEnabled(True)
-                self.view.btn_last.setEnabled(True)
-        else:
-            self.view.btn_first.setEnabled(True)
-            self.view.btn_prev.setEnabled(True)
-            if self.page==self.total_pages:
-                self.view.btn_next.setEnabled(False)
-                self.view.btn_last.setEnabled(False)
-            else:
-                self.view.btn_next.setEnabled(True)
-                self.view.btn_last.setEnabled(True)
+        has_pages = self.total_pages > 1
+        is_not_first = self.page > 1
+        is_not_last = self.page < self.total_pages
+
+        self.view.btn_first.setEnabled(has_pages and is_not_first)
+        self.view.btn_prev.setEnabled(has_pages and is_not_first)
+        self.view.btn_next.setEnabled(has_pages and is_not_last)
+        self.view.btn_last.setEnabled(has_pages and is_not_last)
+
+        # if self.page<=1:
+        #     if self.total_pages<=1:
+        #         self.view.btn_first.setEnabled(False)
+        #         self.view.btn_prev.setEnabled(False)
+        #         self.view.btn_next.setEnabled(False)
+        #         self.view.btn_last.setEnabled(False)
+        #     else:
+        #         self.view.btn_first.setEnabled(False)
+        #         self.view.btn_prev.setEnabled(False)
+        #         self.view.btn_next.setEnabled(True)
+        #         self.view.btn_last.setEnabled(True)
+        # else:
+        #     self.view.btn_first.setEnabled(True)
+        #     self.view.btn_prev.setEnabled(True)
+        #     if self.page==self.total_pages:
+        #         self.view.btn_next.setEnabled(False)
+        #         self.view.btn_last.setEnabled(False)
+        #     else:
+        #         self.view.btn_next.setEnabled(True)
+        #         self.view.btn_last.setEnabled(True)
+    
+    def validate_produit_data(self, data):
+        # 1. Vérification des champs obligatoires
+        if not data.get("reference") or len(data["reference"].strip()) < 3:
+            return False,"reference", "La référence doit contenir au moins 3 caractères."
+        
+        if not data.get("designation") or len(data["designation"].strip()) < 3:
+            return False,"designation", "La désignation doit contenir au moins 3 caractères."
+
+        # 2. Vérification de la catégorie
+        if data.get("categorie_id") is None:
+            return False,"categorie_id", "Veuillez sélectionner une catégorie."
+
+        # 3. Logique métier (ex: seuil d'alerte positif)
+        if data.get("seuil_alerte", 0) < 0:
+            return False,"seuil_alerte", "Le seuil d'alerte ne peut pas être négatif."
+
+        return True, None, None
     
     @Slot()
     def first_page(self):
@@ -336,11 +368,8 @@ class ProduitController():
     @Slot()
     def add_produit(self):        
         dialog = ProduitAddView(categories=self.categories)
-        # dialog.save_requested.connect(
-        #     lambda produit: self.on_save(dialog, produit)
-        # )
         dialog.btn_save.clicked.connect(
-            lambda: self.on_save(dialog, self.get_produit_data(dialog,True))
+            lambda: self.on_save(dialog, self.get_produit_data(dialog))
         )
         dialog.btn_cancel.clicked.connect(dialog.reject)
         dialog.exec()
@@ -352,7 +381,7 @@ class ProduitController():
         # categories = self.categorie_service.liste_tout_categories()
         dialog=ProduitAddView(produit,self.categories)
         dialog.btn_save.clicked.connect(
-            lambda: self.on_update(dialog, id, self.get_produit_data(dialog,False))
+            lambda: self.on_update(dialog, id, self.get_produit_data(dialog))
         )
         dialog.btn_cancel.clicked.connect(dialog.reject)
         dialog.exec()
@@ -395,3 +424,26 @@ class ProduitController():
             self.view.btn_edit.setEnabled(False)
             self.view.btn_delete.setEnabled(False)
             self.preview_photo(None)
+
+    @Slot()
+    def reset_filters(self):
+        # 1. Bloquer les signaux pour éviter le "begaiement" de requêtes SQL
+        self.view.search_input.blockSignals(True)
+        self.view.combo_stock.blockSignals(True)
+        self.view.combo_actif.blockSignals(True)
+        self.view.combo_categorie.blockSignals(True)
+
+        # 2. Remettre les valeurs par défaut
+        self.view.search_input.clear()
+        self.view.combo_stock.setCurrentIndex(0)
+        self.view.combo_actif.setCurrentIndex(0)
+        self.view.combo_categorie.setCurrentIndex(0)
+
+        # 3. Débloquer les signaux
+        self.view.search_input.blockSignals(False)
+        self.view.combo_stock.blockSignals(False)
+        self.view.combo_actif.blockSignals(False)
+        self.view.combo_categorie.blockSignals(False)
+
+        # 4. Lancer une seule charge de données propre
+        self.load_produits(reset_page=True)

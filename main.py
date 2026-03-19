@@ -3,6 +3,8 @@ import core.config as config
 
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
+import qtawesome as qta
+from PySide6.QtCore import QSize
 
 from core.router import Router
 from core.container import Container
@@ -54,10 +56,6 @@ def main():
     create_tables()
     app = QApplication(sys.argv)
 
-    # Initialisation de la fenêtre
-    window = MainWindow()
-
-    # --- La fonction de rappel (callback) ---
     def change_theme(is_checked):
         # On détermine le nom du thème
         mode = "dark" if is_checked else "light"
@@ -65,12 +63,14 @@ def main():
         set_theme(app, mode)
         # print(f"🎨 Thème changé en : {mode}")
 
+    # 🖥 Main Window
+    # Initialisation de la fenêtre
+    window = MainWindow()
+    window.change_theme_signal.connect(change_theme)
+    
     # Appliquer le thème par défaut au démarrage
     set_theme(app, "light")
-
-    # Connecter le signal du CheckBox / Switch
-    window.check_theme.toggled.connect(change_theme)
-
+        
     # 🔐 Auth
     auth = AuthManager()
     auth.login("admin", "ADMIN") # Simuler une connexion
@@ -103,10 +103,6 @@ def main():
             container.resolve(config.Repositories.PRODUIT)
         )
     )
-
-    # 🖥 Main Window
-    window = MainWindow()
-    window.check_theme.toggled.connect(change_theme)
 
     # 🚀 Router
     router = Router(window.stack, container, auth)

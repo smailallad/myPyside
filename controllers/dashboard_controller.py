@@ -7,13 +7,11 @@ class DashboardController:
         self.dashboard_service = container.resolve(config.Services.DASHBOARD)
         self.produit_service = container.resolve(config.Services.PRODUIT)
 
-        # Connexion : "Quand la vue s'affiche, rafraîchir les stats"
+        # Connexion : "Quand la vue s'affiche, rafraîchir les compteurs"
         self.view.view_activated.connect(self.update_dashboard)
 
         # Connexion du clic sur une carte
         self.view.card_clicked.connect(self.handle_card_click)
-
-        self.update_dashboard()
 
     def update_dashboard(self):
         total_produits,total_produits_actif,total_produits_non_actif,total_produits_alerte=self.produit_service.get_count_produits()
@@ -26,10 +24,4 @@ class DashboardController:
         # print("Dashboard mis à jour avec les dernières données !")
 
     def handle_card_click(self,key):
-        # match key:
-        #     case "produit":
-        #         print(key)
-        #     case "actif":
-        #         print(key)
-
         self.router.navigate(config.Routes.PRODUIT,status=key)
