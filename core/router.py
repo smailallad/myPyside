@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMessageBox
-
+import core.config as config
 class Router:
     def __init__(self, stacked_widget, container, auth_manager):
         self.stacked_widget = stacked_widget
@@ -9,11 +9,12 @@ class Router:
         self.routes = {}      # config routes
         self.instances = {}   # lazy instances
 
-    def register(self, name, view_class, controller_class, roles=None):
+    def register(self, name, view_class, controller_class, roles=None,titre=None):
         self.routes[name] = {
             "view": view_class,
             "controller": controller_class,
-            "roles": roles or []
+            "roles": roles or [],
+            "title": titre or name.capitalize() # Titre par défaut
         }
 
     def navigate(self, name, **kwargs):
@@ -48,4 +49,9 @@ class Router:
             target_controller.apply_filter(**kwargs)
 
         # print(f"Navigation vers '{name}'")
+        # On change le titre de la fenetre
+        new_title = f"Gestion de Stock | {route['title']}"
+        main_window = self.container.resolve(config.MAIN_WINDOW)
+        main_window.setWindowTitle(new_title)
+
         self.stacked_widget.setCurrentWidget(self.instances[name]["view"])

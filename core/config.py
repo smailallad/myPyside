@@ -13,3 +13,5 @@ class Routes:
     PRODUIT = "produit_route"
     CATEGORIE = "categorie_route"
     DASHBOARD = "dashboard_route"
+
+MAIN_WINDOW = "main_window"

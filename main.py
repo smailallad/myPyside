@@ -36,7 +36,6 @@ def main():
     # 🖥 Main Window
     # Initialisation de la fenêtre
     window = MainWindow()
-
     # Connexion directe à la méthode du manager
     window.change_theme_signal.connect(theme_manager.handle_theme_change)
     
@@ -50,6 +49,9 @@ def main():
 
     # 🧠 Container
     container = Container()
+
+    # ajout main_window dans le container pour l'utiliser dans le router
+    container.register(config.MAIN_WINDOW, window)
 
     # Ajout des services et repositories dans le container
     container.register(config.Repositories.DASHBOARD, DashboardRepository())
@@ -83,14 +85,16 @@ def main():
         config.Routes.DASHBOARD,
         DashboardView,
         DashboardController,
-        roles=["ADMIN", "USER"]
+        roles=["ADMIN", "USER"],
+        titre="DashBoard"
     )
 
     router.register(
         config.Routes.PRODUIT,
         ProduitView,
         ProduitController,
-        roles=["ADMIN"]
+        roles=["ADMIN"],
+        titre="Catalogue Produits"
     )
 
     # Signaux de navigation

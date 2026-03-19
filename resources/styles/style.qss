@@ -126,7 +126,7 @@ QTableWidget,
 QTableView  {
     border-radius: 6px;
     padding: 6px;
-    border: 1px solid #aaa;
+    border: 1px solid #666;
     /* color: #000; */
 }
 

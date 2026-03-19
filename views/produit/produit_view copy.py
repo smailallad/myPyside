@@ -16,21 +16,19 @@ class ProduitView(QWidget):
         main_layout.setSpacing(10)
         
         # ===== CONTENEUR HEADER =====
-        header_widget = QWidget()
-        header_widget.setProperty("class","bordered")
-        header_layout = QVBoxLayout(header_widget)
+        header_container = QWidget()
+        header_container.setProperty("class","bordered")
+        header_layout = QVBoxLayout(header_container)
         header_layout.setContentsMargins(10,10,10,10)
 
         # ===== TITRE =====
-        title = QLabel("Catalogue Produits")
+        title = QLabel("Gestion des Produits")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size:18px;font-weight:bold;")
         header_layout.addWidget(title)
 
         # ===== FILTRE =====
-        filter_widget = QWidget()
-        filter_widget.setProperty("class","bordered")
-        filter_layout = QHBoxLayout(filter_widget)
+        filter_layout = QHBoxLayout()
 
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Recherche produit...")
@@ -58,12 +56,10 @@ class ProduitView(QWidget):
         filter_layout.addWidget(self.combo_categorie)
         filter_layout.addWidget(self.btn_reset_filters)
 
-        # header_layout.addLayout(filter_layout)
+        header_layout.addLayout(filter_layout)
 
         # ===== ACTIONS =====
-        actions_widget = QWidget()
-        actions_widget.setProperty("class","bordered")
-        actions_layout = QHBoxLayout(actions_widget)
+        actions_layout = QHBoxLayout()
 
         self.btn_add = QPushButton()
         self.btn_add.setIcon(qta.icon("fa5s.plus",color="white"))
@@ -106,31 +102,34 @@ class ProduitView(QWidget):
         self.btn_last.setIcon(qta.icon("fa5s.angle-double-right",color="white"))
         self.btn_last.setProperty("type","primary")
 
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.btn_first)
+        pagination_layout.addWidget(self.btn_prev)
+        pagination_layout.addWidget(self.label_page)
+        pagination_layout.addWidget(self.btn_next)
+        pagination_layout.addWidget(self.btn_last)
+
         actions_layout.addWidget(self.btn_add)
         actions_layout.addWidget(self.btn_edit)
         actions_layout.addWidget(self.btn_detail)
         actions_layout.addWidget(self.btn_delete)
+        actions_layout.addLayout(pagination_layout)
         actions_layout.addStretch()
-        actions_layout.addWidget(self.btn_first)
-        actions_layout.addWidget(self.btn_prev)
-        actions_layout.addWidget(self.label_page)
-        actions_layout.addWidget(self.btn_next)
-        actions_layout.addWidget(self.btn_last)
-
-        # actions_layout.addLayout(pagination_layout)
-        # actions_layout.addStretch()
         
-        # header_layout.addLayout(actions_layout)
+        header_layout.addLayout(actions_layout)
+
+        main_layout.addWidget(header_container)
 
         # ===== TABLE =====
         self.table = QTableView()
+
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setCornerButtonEnabled(False) # Plus propre
         self.table.setShowGrid(False) # Donne un look plus moderne si votre QSS gère les bordures de lignes
-        self.table.setFocusPolicy(Qt.StrongFocus)
+        self.table.setFocusPolicy(Qt.NoFocus) # Évite le rectangle en pointillés orange/bleu sur les cellules
 
         # self.table.setAlternatingRowColors(True)
         self.table.setSortingEnabled(True)
@@ -140,38 +139,72 @@ class ProduitView(QWidget):
 
         # ===== PHOTO =====
         photo_container = QWidget()
+        # photo_container.setStyleSheet("""
+        # QWidget{
+        #     background:white;
+        #     border:1px solid #ddd;
+        #     border-radius:6px;
+        # }
+        # """)
         photo_container.setProperty("class","bordered")
+
         photo_layout = QVBoxLayout(photo_container)
+
         self.photo_preview = QLabel("Aucune photo")
         self.photo_preview.setAlignment(Qt.AlignCenter)
         self.photo_preview.setMinimumSize(220,220)
+
         photo_layout.addWidget(self.photo_preview)
         photo_layout.addStretch()
 
         # ===== SPLITTER =====
         splitter = QSplitter()
+
         splitter.addWidget(self.table)
         splitter.addWidget(photo_container)
+
         splitter.setSizes([800,220])
-        
+
+        main_layout.addWidget(splitter,stretch=1)
+
         # ===== STATUS BAR =====
-        status_container = QWidget()       
+        status_container = QWidget()
+        # status_container.setStyleSheet("""
+        # QWidget{
+        #     background:white;
+        #     border:1px solid #ddd;
+        #     border-radius:6px;
+        # }
+        # """)
         status_container.setProperty("class","bordered")
+
         status_layout = QHBoxLayout(status_container)
+
         self.label_count = QLabel("Total produits : 0")
+
         status_layout.addWidget(self.label_count)
         status_layout.addStretch()
-
-        main_layout.addWidget(header_widget)
-        main_layout.addWidget(actions_widget)
-        main_layout.addWidget(filter_widget)
-        main_layout.addWidget(splitter,stretch=1)
 
         main_layout.addWidget(status_container)
 
         # ===== MENU CONTEXTUEL =====
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+
+    # def show_context_menu(self,pos):
+
+    #     menu = QMenu(self)
+
+    #     action_edit = menu.addAction("Modifier")
+    #     action_delete = menu.addAction("Supprimer")
+
+    #     action = menu.exec(self.table.viewport().mapToGlobal(pos))
+
+    #     if action == action_edit:
+    #         self.btn_edit.click()
+
+    #     if action == action_delete:
+    #         self.btn_delete.click()
 
     def show_context_menu(self, pos):
         index = self.table.indexAt(pos)
