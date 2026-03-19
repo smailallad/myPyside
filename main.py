@@ -1,16 +1,14 @@
 import sys
 import core.config as config
 
-from pathlib import Path
 from PySide6.QtWidgets import QApplication
-import qtawesome as qta
-from PySide6.QtCore import QSize
 
 from core.router import Router
 from core.container import Container
 from core.auth import AuthManager
 from core.schema import create_tables
 
+from core.theme_manager import ThemeManager
 from repositories.dashboard_repository import DashboardRepository
 from repositories.categorie_repository import CategorieRepository
 from repositories.produit_repository import ProduitRepository
@@ -27,50 +25,24 @@ from views.main_window import MainWindow
 from views.dashboard_view import DashboardView
 from views.produit.produit_view import ProduitView
 
-def set_theme(app, theme):
-    """
-    Applique le thème QSS à l'application.
-    theme: "dark" ou "light"
-    """
-    style_dir = Path(__file__).parent / "resources" / "styles"
-    theme_file = "dark.qss" if theme == "dark" else "light.qss"
-    structure_file = "style.qss"
-
-    try:
-        # Lecture du fichier de couleurs (Dark ou Light)
-        with open(style_dir / theme_file, "r", encoding="utf-8") as f:
-            theme_content = f.read()
-        
-        # Lecture du fichier de structure (Dimensions, Radius, etc.)
-        with open(style_dir / structure_file, "r", encoding="utf-8") as f:
-            structure_content = f.read()
-
-        # Application globale (Fusion des deux)
-        app.setStyleSheet(theme_content + "\n" + structure_content)
-        
-    except FileNotFoundError as e:
-        print(f"⚠️ Erreur : Fichier QSS introuvable -> {e}")
-
 def main():
     # création automatique des tables
     create_tables()
     app = QApplication(sys.argv)
 
-    def change_theme(is_checked):
-        # On détermine le nom du thème
-        mode = "dark" if is_checked else "light"
-        # On appelle la fonction globale
-        set_theme(app, mode)
-        # print(f"🎨 Thème changé en : {mode}")
-
+    # Initialisation du manager
+    theme_manager = ThemeManager(app)
+    
     # 🖥 Main Window
     # Initialisation de la fenêtre
     window = MainWindow()
-    window.change_theme_signal.connect(change_theme)
+
+    # Connexion directe à la méthode du manager
+    window.change_theme_signal.connect(theme_manager.handle_theme_change)
     
-    # Appliquer le thème par défaut au démarrage
-    set_theme(app, "light")
-        
+    # Appliquer le thème initial
+    theme_manager.apply_theme("light")
+    
     # 🔐 Auth
     auth = AuthManager()
     auth.login("admin", "ADMIN") # Simuler une connexion
